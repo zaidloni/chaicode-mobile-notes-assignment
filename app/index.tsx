@@ -29,7 +29,7 @@ export default function Index() {
   const { width } = useWindowDimensions();
   const isTablet = width > 768;
   const [manualDarkMode, setManualDarkMode] = useState(systemTheme === 'dark');
-  
+
   const isDark = manualDarkMode;
 
   // STEEP DESIGN SYSTEM COLORS
@@ -122,6 +122,15 @@ export default function Index() {
     resetForm();
 
     setScreen('list');
+  };
+
+  const handleDelete = (id: string) => {
+    setNotes((prev) => prev.filter((note) => note.id !== id));
+
+    if (editId === id) {
+      resetForm();
+      setScreen('list');
+    }
   };
 
   const openEditor = (note?: Note) => {
@@ -247,8 +256,7 @@ export default function Index() {
             }
             renderItem={({ item, index }) => {
               return (
-                <Pressable
-                  onPress={() => openEditor(item)}
+                <View
                   style={[
                     styles.noteCard,
                     {
@@ -257,48 +265,78 @@ export default function Index() {
                       width: isTablet ? '48%' : '100%',
                     },
                   ]}>
-                  {/* Accent Line */}
-
-                  <View
-                    style={[
-                      styles.accentLine,
+                  <Pressable
+                    onPress={() => openEditor(item)}
+                    style={({ pressed }) => [
+                      styles.noteCardContent,
                       {
-                        backgroundColor: theme.accent,
-                      },
-                    ]}
-                  />
-
-                  <Text
-                    style={[
-                      styles.noteTitle,
-                      {
-                        color: theme.text,
+                        opacity: pressed ? 0.95 : 1,
                       },
                     ]}>
-                    {item.title}
-                  </Text>
+                    {/* Accent Line */}
 
-                  <Text
-                    numberOfLines={3}
-                    style={[
-                      styles.noteContent,
+                    <View
+                      style={[
+                        styles.accentLine,
+                        {
+                          backgroundColor: theme.accent,
+                        },
+                      ]}
+                    />
+
+                    <Text
+                      style={[
+                        styles.noteTitle,
+                        {
+                          color: theme.text,
+                        },
+                      ]}>
+                      {item.title}
+                    </Text>
+
+                    <Text
+                      numberOfLines={3}
+                      style={[
+                        styles.noteContent,
+                        {
+                          color: theme.secondaryText,
+                        },
+                      ]}>
+                      {item.content}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.noteTimestamp,
+                        {
+                          color: theme.muted,
+                        },
+                      ]}>
+                      {new Date(item.timestamp).toLocaleDateString()}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => handleDelete(item.id)}
+                    style={({ pressed }) => [
+                      styles.cardDeleteButton,
                       {
-                        color: theme.secondaryText,
+                        borderColor: theme.accent,
+                        backgroundColor: theme.surface,
+                        opacity: pressed ? 0.88 : 1,
                       },
                     ]}>
-                    {item.content}
-                  </Text>
-
-                  <Text
-                    style={[
-                      styles.noteTimestamp,
-                      {
-                        color: theme.muted,
-                      },
-                    ]}>
-                    {new Date(item.timestamp).toLocaleDateString()}
-                  </Text>
-                </Pressable>
+                    <Text
+                      style={[
+                        styles.cardDeleteButtonText,
+                        {
+                          color: theme.accent,
+                        },
+                      ]}>
+                      Delete
+                    </Text>
+                  </Pressable>
+                </View>
               );
             }}
           />
@@ -686,5 +724,23 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 15,
     fontWeight: '500',
+  },
+
+  noteCardContent: {
+    padding: 0,
+  },
+
+  cardDeleteButton: {
+    marginTop: 18,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+
+  cardDeleteButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.2,
   },
 });
